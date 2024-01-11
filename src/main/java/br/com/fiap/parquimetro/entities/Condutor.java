@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
 @AllArgsConstructor
@@ -31,6 +29,9 @@ public class Condutor {
 
     @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
     private List<MetodoDePagamento> formaDePagamento;
+
+    @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
+    private List<Veiculo> veiculos;
 
 
 }
