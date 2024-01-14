@@ -29,4 +29,8 @@ public class MetodoDePagamento {
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
 
+    public MetodoDePagamento(TipoDePagamento metodoDePagamento) {
+        this.metodoDePagamento = metodoDePagamento;
+    }
+
 }

@@ -25,4 +25,10 @@ public class Veiculo {
     @ManyToOne
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
+
+    public Veiculo(String modelo, String cor, String placa) {
+        this.modelo = modelo;
+        this.cor = cor;
+        this.placa = placa;
+    }
 }

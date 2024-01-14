@@ -1,13 +1,11 @@
 package br.com.fiap.parquimetro.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Getter
 @Setter
 @Entity
@@ -20,9 +18,16 @@ public class Telefone {
     private int ddi;
     private int ddd;
     private int telefone;
+    private boolean isTelefonePrincipal;
 
     @ManyToOne
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
 
+    public Telefone(int ddi, int ddd, int numeroTelefone, boolean isTelefonePrincipal) {
+        this.ddi = ddi;
+        this.ddd = ddd;
+        this.telefone = numeroTelefone;
+        this.isTelefonePrincipal = isTelefonePrincipal;
+    }
 }

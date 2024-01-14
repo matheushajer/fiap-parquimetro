@@ -25,7 +25,7 @@ public class Condutor {
     List<Telefone> telefones;
 
     @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
-    List<Endereco> endereco;
+    List<Endereco> enderecos;
 
     @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
     private List<MetodoDePagamento> formaDePagamento;
@@ -34,4 +34,9 @@ public class Condutor {
     private List<Veiculo> veiculos;
 
 
+    public Condutor(String nome, String cpf, String email) {
+        this.nome = nome;
+        this.cpf = cpf;
+        this.email = email;
+    }
 }

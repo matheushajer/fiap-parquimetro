@@ -29,4 +29,14 @@ public class Endereco {
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
 
+    public Endereco(String cep, String logradouro, String numero, String complemento, String bairro, String cidade, String uf) {
+        this.cep = cep;
+        this.logradouro = logradouro;
+        this.numero = numero;
+        this.complemento = complemento;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.uf = uf;
+    }
+
 }
