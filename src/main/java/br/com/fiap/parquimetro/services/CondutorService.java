@@ -103,7 +103,7 @@ public class CondutorService {
     public CondutorDTO updateCondutorDTO(Long id, CondutorDTO condutorDTO) {
         CondutorDTO existingCondutor = getCondutorById(id);
 
-        // Cria um novo objeto Condutor
+        // Cria um objeto Condutor
         Condutor updatedCondutor = new Condutor();
         updatedCondutor.setNome(existingCondutor.nomeCondutor());
         updatedCondutor.setCpf(existingCondutor.cpfCondutor());

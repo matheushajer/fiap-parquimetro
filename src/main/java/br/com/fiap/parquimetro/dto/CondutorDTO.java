@@ -1,7 +1,5 @@
 package br.com.fiap.parquimetro.dto;
 
-import br.com.fiap.parquimetro.entities.Telefone;
-
 import java.util.List;
 
 public record CondutorDTO(

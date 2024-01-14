@@ -1,13 +1,14 @@
 package br.com.fiap.parquimetro.entities;
 
-import jakarta.persistence.*;
 import lombok.*;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-@Getter
-@Setter
 @Entity
 @Table(name = "tb_telefones")
 public class Telefone {
