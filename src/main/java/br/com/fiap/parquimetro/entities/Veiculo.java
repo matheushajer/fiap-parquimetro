@@ -22,7 +22,7 @@ public class Veiculo {
 
     private String placa;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
 

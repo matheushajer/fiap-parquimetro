@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.List;
 
@@ -22,16 +24,20 @@ public class Condutor {
     private String cpf;
     private String email;
 
-    @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
-    List<Telefone> telefones;
+    @OneToMany(mappedBy = "condutor", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
+    private List<Telefone> telefones;
 
-    @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
-    List<Endereco> enderecos;
+    @OneToMany(mappedBy = "condutor", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
+    private List<Endereco> enderecos;
 
-    @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "condutor", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
     private List<MetodoDePagamento> formaDePagamento;
 
-    @OneToMany(mappedBy = "condutor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "condutor", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
     private List<Veiculo> veiculos;
 
 

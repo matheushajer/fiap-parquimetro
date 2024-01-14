@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 public class MetodoDePagamento {
 
     public enum TipoDePagamento {
-        CREDITO,
         DEBITO,
+        CREDITO,
         PIX
     }
 

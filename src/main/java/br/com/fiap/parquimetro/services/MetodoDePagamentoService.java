@@ -20,33 +20,33 @@ public class MetodoDePagamentoService {
         );
     }
 
-    public MetodoDePagamento convertToEntity(MetodoDePagamentoDTO metodoDePagamentoDTO, Long conductorId) {
+    public MetodoDePagamento convertToEntity(MetodoDePagamentoDTO metodoDePagamentoDTO, Condutor condutor) {
         MetodoDePagamento metodoDePagamento = new MetodoDePagamento(
-                MetodoDePagamento.TipoDePagamento.valueOf(String.valueOf(metodoDePagamentoDTO.metodoDePgamento()))
+                metodoDePagamentoDTO.metodoDePagamento()
         );
 
         // Estabelece a relação com o Condutor
-        if (conductorId != null) {
-            Condutor conductor = new Condutor();
-            conductor.setId(conductorId);
-            metodoDePagamento.setCondutor(conductor);
-        }
+        metodoDePagamento.setCondutor(condutor);
 
         return metodoDePagamento;
     }
 
-    public MetodoDePagamentoDTO createMetodoDePagamentoDTO(MetodoDePagamentoDTO metodoDePagamentoDTO, Long conductorId) {
-        MetodoDePagamento metodoDePagamento = convertToEntity(metodoDePagamentoDTO, conductorId);
+
+    public MetodoDePagamentoDTO createMetodoDePagamentoDTO(MetodoDePagamentoDTO metodoDePagamentoDTO, Condutor condutor) {
+        MetodoDePagamento metodoDePagamento = convertToEntity(metodoDePagamentoDTO, condutor);
         MetodoDePagamento savedMetodoDePagamento = metodoDePagamentoRepository.save(metodoDePagamento);
         return convertToDTO(savedMetodoDePagamento);
     }
 
-    public MetodoDePagamentoDTO updateMetodoDePagamentoDTO(Long id, MetodoDePagamentoDTO metodoDePagamentoDTO) {
+
+    public MetodoDePagamentoDTO updateMetodoDePagamentoDTO(Long id, MetodoDePagamentoDTO metodoDePagamentoDTO, Condutor condutor) {
         MetodoDePagamento existingMetodoDePagamento = getMetodoDePagamentoById(id);
         MetodoDePagamento updatedMetodoDePagamento = updateMetodoDePagamentoFromDTO(existingMetodoDePagamento, metodoDePagamentoDTO);
+        updatedMetodoDePagamento.setCondutor(condutor); // Atualiza a referência ao Condutor
         MetodoDePagamento savedMetodoDePagamento = metodoDePagamentoRepository.save(updatedMetodoDePagamento);
         return convertToDTO(savedMetodoDePagamento);
     }
+
 
     public void deleteMetodoDePagamento(Long id) {
         metodoDePagamentoRepository.deleteById(id);
@@ -59,8 +59,8 @@ public class MetodoDePagamentoService {
 
     private MetodoDePagamento updateMetodoDePagamentoFromDTO(MetodoDePagamento metodoDePagamento, MetodoDePagamentoDTO metodoDePagamentoDTO) {
         // Atualiza apenas os campos modificáveis
-        if (metodoDePagamentoDTO.metodoDePgamento() != null) {
-            metodoDePagamento.setMetodoDePagamento(MetodoDePagamento.TipoDePagamento.valueOf(String.valueOf(metodoDePagamentoDTO.metodoDePgamento())));
+        if (metodoDePagamentoDTO.metodoDePagamento() != null) {
+            metodoDePagamento.setMetodoDePagamento(MetodoDePagamento.TipoDePagamento.valueOf(String.valueOf(metodoDePagamentoDTO.metodoDePagamento())));
         }
 
         return metodoDePagamento;

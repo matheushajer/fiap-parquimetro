@@ -3,10 +3,15 @@ package br.com.fiap.parquimetro.services;
 import br.com.fiap.parquimetro.dto.*;
 import br.com.fiap.parquimetro.entities.*;
 import br.com.fiap.parquimetro.repositories.CondutorRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,31 +20,39 @@ public class CondutorService {
 
     @Autowired
     private CondutorRepository condutorRepository;
+
     @Autowired
     private TelefoneService telefoneService;
+
     @Autowired
     private EnderecoService enderecoService;
+
     @Autowired
     private VeiculoService veiculoService;
+
     @Autowired
     private MetodoDePagamentoService metodoDePagamentoService;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Transactional(readOnly = true)
     public CondutorDTO convertToDTO(Condutor condutor) {
-        List<TelefoneDTO> telefonesDTO = condutor.getTelefones().stream()
-                .map(telefoneService::convertToDTO)
-                .collect(Collectors.toList());
+        List<TelefoneDTO> telefonesDTO = (condutor.getTelefones() != null)
+                ? condutor.getTelefones().stream().map(telefoneService::convertToDTO).collect(Collectors.toList())
+                : new ArrayList<>();
 
-        List<EnderecoDTO> enderecosDTO = condutor.getEnderecos().stream()
-                .map(enderecoService::convertToDTO)
-                .collect(Collectors.toList());
+        List<EnderecoDTO> enderecosDTO = (condutor.getEnderecos() != null)
+                ? condutor.getEnderecos().stream().map(enderecoService::convertToDTO).collect(Collectors.toList())
+                : new ArrayList<>();
 
-        List<VeiculoDTO> veiculosDTO = condutor.getVeiculos().stream()
-                .map(veiculoService::convertToDTO)
-                .collect(Collectors.toList());
+        List<VeiculoDTO> veiculosDTO = (condutor.getVeiculos() != null)
+                ? condutor.getVeiculos().stream().map(veiculoService::convertToDTO).collect(Collectors.toList())
+                : new ArrayList<>();
 
-        List<MetodoDePagamentoDTO> metodosDTO = condutor.getFormaDePagamento().stream()
-                .map(metodoDePagamentoService::convertToDTO)
-                .collect(Collectors.toList());
+        List<MetodoDePagamentoDTO> metodosDTO = (condutor.getFormaDePagamento() != null)
+                ? condutor.getFormaDePagamento().stream().map(metodoDePagamentoService::convertToDTO).collect(Collectors.toList())
+                : new ArrayList<>();
 
         return new CondutorDTO(
                 condutor.getNome(),
@@ -94,57 +107,103 @@ public class CondutorService {
         return condutor;
     }
 
+    @Transactional
     public CondutorDTO createCondutorDTO(CondutorDTO condutorDTO) {
+        // Converter DTO para a entidade Condutor
         Condutor condutor = convertToEntity(condutorDTO);
+
+        // Adicionar associações ao Condutor
+        if (condutorDTO.telefonesCondutor() != null) {
+            List<Telefone> telefones = condutorDTO.telefonesCondutor().stream()
+                    .map(dto -> telefoneService.convertToEntity(dto, condutor))
+                    .collect(Collectors.toList());
+            condutor.setTelefones(telefones);
+        }
+
+        if (condutorDTO.enderecosCondutor() != null) {
+            List<Endereco> enderecos = condutorDTO.enderecosCondutor().stream()
+                    .map(dto -> enderecoService.convertToEntity(dto, condutor))
+                    .collect(Collectors.toList());
+            condutor.setEnderecos(enderecos);
+        }
+
+        if (condutorDTO.veiculosCondutor() != null) {
+            List<Veiculo> veiculos = condutorDTO.veiculosCondutor().stream()
+                    .map(dto -> veiculoService.convertToEntity(dto, condutor))
+                    .collect(Collectors.toList());
+            condutor.setVeiculos(veiculos);
+        }
+
+        if (condutorDTO.metodosCondutor() != null) {
+            List<MetodoDePagamento> metodos = condutorDTO.metodosCondutor().stream()
+                    .map(dto -> metodoDePagamentoService.convertToEntity(dto, condutor))
+                    .collect(Collectors.toList());
+            condutor.setFormaDePagamento(metodos);
+        }
+
+        // Salvar o Condutor no banco de dados
         Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Retornar o DTO após a operação de salvamento
         return convertToDTO(savedCondutor);
     }
 
-    public CondutorDTO updateCondutorDTO(Long id, CondutorDTO condutorDTO) {
-        CondutorDTO existingCondutor = getCondutorById(id);
 
-        // Cria um objeto Condutor
-        Condutor updatedCondutor = new Condutor();
-        updatedCondutor.setNome(existingCondutor.nomeCondutor());
-        updatedCondutor.setCpf(existingCondutor.cpfCondutor());
-        updatedCondutor.setEmail(existingCondutor.emailCondutor());
+    public CondutorDTO updateCondutorDTO(Long id, CondutorDTO condutorDTO) {
+        Condutor existingCondutor = condutorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo id: " + id));
 
         // Atualiza os campos modificáveis
         if (condutorDTO.nomeCondutor() != null) {
-            updatedCondutor.setNome(condutorDTO.nomeCondutor());
+            existingCondutor.setNome(condutorDTO.nomeCondutor());
         }
 
         if (condutorDTO.cpfCondutor() != null) {
-            updatedCondutor.setCpf(condutorDTO.cpfCondutor());
+            existingCondutor.setCpf(condutorDTO.cpfCondutor());
         }
 
         if (condutorDTO.emailCondutor() != null) {
-            updatedCondutor.setEmail(condutorDTO.emailCondutor());
+            existingCondutor.setEmail(condutorDTO.emailCondutor());
         }
 
         // Atualiza os telefones, endereços, veículos e métodos de pagamento
-        updateCollectionsFromDTO(updatedCondutor, condutorDTO);
+        updateCollectionsFromDTO(existingCondutor, condutorDTO);
 
-        // Salva o novo objeto Condutor no banco de dados
-        Condutor savedCondutor = condutorRepository.save(updatedCondutor);
+        // Salva a entidade existente no banco de dados
+        Condutor savedCondutor = condutorRepository.save(existingCondutor);
 
         return convertToDTO(savedCondutor);
     }
+
 
     public void deleteCondutor(Long id) {
         condutorRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<CondutorDTO> getAllCondutores() {
         List<Condutor> condutores = condutorRepository.findAll();
+
+        for (Condutor condutor : condutores) {
+            Hibernate.initialize(condutor.getTelefones());
+        }
+
         return condutores.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public CondutorDTO getCondutorById(Long id) {
         Condutor condutor = condutorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Condutor not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo id: " + id));
+
+        // Inicialize as coleções antes de retornar
+        Hibernate.initialize(condutor.getTelefones());
+        Hibernate.initialize(condutor.getEnderecos());
+        Hibernate.initialize(condutor.getVeiculos());
+        Hibernate.initialize(condutor.getFormaDePagamento());
+
         return convertToDTO(condutor);
     }
 
@@ -172,7 +231,7 @@ public class CondutorService {
         // Atualiza telefones
         if (condutorDTO.telefonesCondutor() != null) {
             List<Telefone> telefones = condutorDTO.telefonesCondutor().stream()
-                    .map(dto -> telefoneService.convertToEntity(dto, condutor.getId()))
+                    .map(dto -> telefoneService.convertToEntity(dto, condutor))
                     .collect(Collectors.toList());
             condutor.setTelefones(telefones);
         }
@@ -180,7 +239,7 @@ public class CondutorService {
         // Atualiza endereços
         if (condutorDTO.enderecosCondutor() != null) {
             List<Endereco> enderecos = condutorDTO.enderecosCondutor().stream()
-                    .map(dto -> enderecoService.convertToEntity(dto, condutor.getId()))
+                    .map(dto -> enderecoService.convertToEntity(dto, condutor))
                     .collect(Collectors.toList());
             condutor.setEnderecos(enderecos);
         }
@@ -188,7 +247,7 @@ public class CondutorService {
         // Atualiza veículos
         if (condutorDTO.veiculosCondutor() != null) {
             List<Veiculo> veiculos = condutorDTO.veiculosCondutor().stream()
-                    .map(dto -> veiculoService.convertToEntity(dto, condutor.getId()))
+                    .map(dto -> veiculoService.convertToEntity(dto, condutor))
                     .collect(Collectors.toList());
             condutor.setVeiculos(veiculos);
         }
@@ -196,7 +255,7 @@ public class CondutorService {
         // Atualiza métodos de pagamento
         if (condutorDTO.metodosCondutor() != null) {
             List<MetodoDePagamento> metodos = condutorDTO.metodosCondutor().stream()
-                    .map(dto -> metodoDePagamentoService.convertToEntity(dto, condutor.getId()))
+                    .map(dto -> metodoDePagamentoService.convertToEntity(dto, condutor))
                     .collect(Collectors.toList());
             condutor.setFormaDePagamento(metodos);
         }

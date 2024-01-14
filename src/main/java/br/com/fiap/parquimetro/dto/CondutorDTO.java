@@ -11,4 +11,5 @@ public record CondutorDTO(
         List<VeiculoDTO> veiculosCondutor,
         List<MetodoDePagamentoDTO> metodosCondutor
 ) {
+
 }

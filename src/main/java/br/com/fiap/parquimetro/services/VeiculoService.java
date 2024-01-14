@@ -26,7 +26,7 @@ public class VeiculoService {
         );
     }
 
-    public Veiculo convertToEntity(VeiculoDTO veiculoDTO, Long conductorId) {
+    public Veiculo convertToEntity(VeiculoDTO veiculoDTO, Condutor condutor) {
         Veiculo veiculo = new Veiculo(
                 veiculoDTO.modelo(),
                 veiculoDTO.cor(),
@@ -34,27 +34,27 @@ public class VeiculoService {
         );
 
         // Estabelece a relação com o Condutor
-        if (conductorId != null) {
-            Condutor conductor = new Condutor();
-            conductor.setId(conductorId);
-            veiculo.setCondutor(conductor);
-        }
+        veiculo.setCondutor(condutor);
 
         return veiculo;
     }
 
-    public VeiculoDTO createVeiculoDTO(VeiculoDTO veiculoDTO, Long conductorId) {
-        Veiculo veiculo = convertToEntity(veiculoDTO, conductorId);
+
+    public VeiculoDTO createVeiculoDTO(VeiculoDTO veiculoDTO, Condutor condutor) {
+        Veiculo veiculo = convertToEntity(veiculoDTO, condutor);
         Veiculo savedVeiculo = veiculoRepository.save(veiculo);
         return convertToDTO(savedVeiculo);
     }
 
-    public VeiculoDTO updateVeiculoDTO(Long id, VeiculoDTO veiculoDTO) {
+
+    public VeiculoDTO updateVeiculoDTO(Long id, VeiculoDTO veiculoDTO, Condutor condutor) {
         Veiculo existingVeiculo = getVeiculoById(id);
         Veiculo updatedVeiculo = updateVeiculoFromDTO(existingVeiculo, veiculoDTO);
+        updatedVeiculo.setCondutor(condutor); // Atualiza a referência ao Condutor
         Veiculo savedVeiculo = veiculoRepository.save(updatedVeiculo);
         return convertToDTO(savedVeiculo);
     }
+
 
     public void deleteVeiculo(Long id) {
         veiculoRepository.deleteById(id);

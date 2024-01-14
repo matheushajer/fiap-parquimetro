@@ -26,7 +26,7 @@ public class EnderecoService {
         );
     }
 
-    public Endereco convertToEntity(EnderecoDTO enderecoDTO, Long conductorId) {
+    public Endereco convertToEntity(EnderecoDTO enderecoDTO, Condutor condutor) {
         Endereco endereco = new Endereco(
                 enderecoDTO.cep(),
                 enderecoDTO.logradouro(),
@@ -38,27 +38,28 @@ public class EnderecoService {
         );
 
         // Estabelece a relação com o Condutor
-        if (conductorId != null) {
-            Condutor conductor = new Condutor();
-            conductor.setId(conductorId);
-            endereco.setCondutor(conductor);
-        }
+        endereco.setCondutor(condutor);
 
         return endereco;
     }
 
-    public EnderecoDTO createEnderecoDTO(EnderecoDTO enderecoDTO, Long conductorId) {
-        Endereco endereco = convertToEntity(enderecoDTO, conductorId);
+
+
+    public EnderecoDTO createEnderecoDTO(EnderecoDTO enderecoDTO, Condutor condutor) {
+        Endereco endereco = convertToEntity(enderecoDTO, condutor);
         Endereco savedEndereco = enderecoRepository.save(endereco);
         return convertToDTO(savedEndereco);
     }
 
-    public EnderecoDTO updateEnderecoDTO(Long id, EnderecoDTO enderecoDTO) {
+
+    public EnderecoDTO updateEnderecoDTO(Long id, EnderecoDTO enderecoDTO, Condutor condutor) {
         Endereco existingEndereco = getEnderecoById(id);
         Endereco updatedEndereco = updateEnderecoFromDTO(existingEndereco, enderecoDTO);
+        updatedEndereco.setCondutor(condutor); // Atualiza a referência ao Condutor
         Endereco savedEndereco = enderecoRepository.save(updatedEndereco);
         return convertToDTO(savedEndereco);
     }
+
 
     public void deleteEndereco(Long id) {
         enderecoRepository.deleteById(id);

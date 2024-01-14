@@ -23,7 +23,7 @@ public class TelefoneService {
         );
     }
 
-    public Telefone convertToEntity(TelefoneDTO telefoneDTO, Long conductorId) {
+    public Telefone convertToEntity(TelefoneDTO telefoneDTO, Condutor condutor) {
         Telefone telefone = new Telefone(
                 telefoneDTO.ddi(),
                 telefoneDTO.ddd(),
@@ -32,27 +32,26 @@ public class TelefoneService {
         );
 
         // Estabelece a relação com o Condutor
-        if (conductorId != null) {
-            Condutor conductor = new Condutor();
-            conductor.setId(conductorId);
-            telefone.setCondutor(conductor);
-        }
+        telefone.setCondutor(condutor);
 
         return telefone;
     }
 
-    public TelefoneDTO createTelefoneDTO(TelefoneDTO telefoneDTO, Long conductorId) {
-        Telefone telefone = convertToEntity(telefoneDTO, conductorId);
+    public TelefoneDTO createTelefoneDTO(TelefoneDTO telefoneDTO, Condutor condutor) {
+        Telefone telefone = convertToEntity(telefoneDTO, condutor);
         Telefone savedTelefone = telefoneRepository.save(telefone);
         return convertToDTO(savedTelefone);
     }
 
-    public TelefoneDTO updateTelefoneDTO(Long id, TelefoneDTO telefoneDTO) {
+
+    public TelefoneDTO updateTelefoneDTO(Long id, TelefoneDTO telefoneDTO, Condutor condutor) {
         Telefone existingTelefone = getTelefoneById(id);
         Telefone updatedTelefone = updateTelefoneFromDTO(existingTelefone, telefoneDTO);
+        updatedTelefone.setCondutor(condutor); // Atualiza a referência ao Condutor
         Telefone savedTelefone = telefoneRepository.save(updatedTelefone);
         return convertToDTO(savedTelefone);
     }
+
 
     public void deleteTelefone(Long id) {
         telefoneRepository.deleteById(id);
