@@ -235,6 +235,13 @@ public class CondutorService {
             List<Telefone> telefones = condutorDTO.telefonesCondutor().stream()
                     .map(dto -> telefoneService.convertToEntity(dto, condutor))
                     .collect(Collectors.toList());
+
+            // Verifica se mais de um telefone está marcado como principal
+            long countPrincipal = telefones.stream().filter(Telefone::isTelefonePrincipal).count();
+            if (countPrincipal > 1) {
+                throw new IllegalArgumentException("Deve haver apenas um telefone marcado como principal.");
+            }
+
             condutor.setTelefones(telefones);
         }
 
