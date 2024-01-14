@@ -114,17 +114,19 @@ public class CondutorService {
 
         // Adicionar associações ao Condutor
         if (condutorDTO.telefonesCondutor() != null) {
+            // Verifica se há mais de um telefone principal
+            long telefonesPrincipais = condutorDTO.telefonesCondutor().stream()
+                    .filter(TelefoneDTO::isTelefonePrincipal)
+                    .count();
+
+            if (telefonesPrincipais != 1) {
+                throw new IllegalArgumentException("Deve haver apenas um telefone marcado como principal.");
+            }
+
             List<Telefone> telefones = condutorDTO.telefonesCondutor().stream()
                     .map(dto -> telefoneService.convertToEntity(dto, condutor))
                     .collect(Collectors.toList());
             condutor.setTelefones(telefones);
-        }
-
-        if (condutorDTO.enderecosCondutor() != null) {
-            List<Endereco> enderecos = condutorDTO.enderecosCondutor().stream()
-                    .map(dto -> enderecoService.convertToEntity(dto, condutor))
-                    .collect(Collectors.toList());
-            condutor.setEnderecos(enderecos);
         }
 
         if (condutorDTO.veiculosCondutor() != null) {
