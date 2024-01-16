@@ -129,6 +129,13 @@ public class CondutorService {
             condutor.setTelefones(telefones);
         }
 
+        if (condutorDTO.enderecosCondutor() != null){
+            List<Endereco> enderecos = condutorDTO.enderecosCondutor().stream()
+                    .map(dto -> enderecoService.convertToEntity(dto, condutor))
+                    .collect(Collectors.toList());
+            condutor.setEnderecos(enderecos);
+        }
+
         if (condutorDTO.veiculosCondutor() != null) {
             List<Veiculo> veiculos = condutorDTO.veiculosCondutor().stream()
                     .map(dto -> veiculoService.convertToEntity(dto, condutor))
@@ -207,26 +214,6 @@ public class CondutorService {
         Hibernate.initialize(condutor.getFormaDePagamento());
 
         return convertToDTO(condutor);
-    }
-
-    private Condutor updateCondutorFromDTO(Condutor condutor, CondutorDTO condutorDTO) {
-        // Atualiza apenas os campos modificáveis
-        if (condutorDTO.nomeCondutor() != null) {
-            condutor.setNome(condutorDTO.nomeCondutor());
-        }
-
-        if (condutorDTO.cpfCondutor() != null) {
-            condutor.setCpf(condutorDTO.cpfCondutor());
-        }
-
-        if (condutorDTO.emailCondutor() != null) {
-            condutor.setEmail(condutorDTO.emailCondutor());
-        }
-
-        // Atualiza os telefones, endereços, veículos e métodos de pagamento
-        updateCollectionsFromDTO(condutor, condutorDTO);
-
-        return condutor;
     }
 
     private void updateCollectionsFromDTO(Condutor condutor, CondutorDTO condutorDTO) {
