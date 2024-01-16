@@ -414,5 +414,57 @@ public class CondutorService {
         return convertToDTO(savedCondutor);
     }
 
+    // ************************************************
+    // Seleção Atualização das informações de Pagamento
+    // ************************************************
+
+    @Transactional
+    public CondutorDTO adicionarMetodosDePagamentoAoCondutor(Long condutorId, List<MetodoDePagamentoDTO> metodosDTO) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        // Converte DTOs para entidades e estabelece a relação com o condutor
+        List<MetodoDePagamento> metodos = metodosDTO.stream()
+                .map(dto -> metodoDePagamentoService.convertToEntity(dto, condutor))
+                .collect(Collectors.toList());
+
+        // Adiciona os métodos de pagamento ao condutor existente
+        condutor.getFormaDePagamento().addAll(metodos);
+
+        // Salva o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Converte e retorna o DTO atualizado
+        return convertToDTO(savedCondutor);
+    }
+
+    public CondutorDTO removerMetodosDePagamentoDoCondutor(Long condutorId, List<Integer> ordens) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        List<MetodoDePagamento> metodos = condutor.getFormaDePagamento();
+
+        // Criar uma nova lista para armazenar os métodos de pagamento a serem removidos
+        List<MetodoDePagamento> metodosParaRemover = new ArrayList<>();
+
+        // Encontrar os métodos de pagamento com base nas ordens especificadas
+        for (Integer ordem : ordens) {
+            if (ordem >= 1 && ordem <= metodos.size()) {
+                metodosParaRemover.add(metodos.get(ordem - 1));
+            }
+        }
+
+        // Remover os métodos de pagamento
+        metodos.removeAll(metodosParaRemover);
+
+        // Salvar o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Converte e retorna o DTO atualizado
+        return convertToDTO(savedCondutor);
+    }
+
+
+
 
 }
