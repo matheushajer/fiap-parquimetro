@@ -184,7 +184,6 @@ public class CondutorService {
         return convertToDTO(savedCondutor);
     }
 
-
     public void deleteCondutor(Long id) {
         condutorRepository.deleteById(id);
     }
@@ -255,6 +254,34 @@ public class CondutorService {
                     .collect(Collectors.toList());
             condutor.setFormaDePagamento(metodos);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public CondutorDTO adicionarNovosTelefonesAoCondutor(Long condutorId, List<TelefoneDTO> novosTelefonesDTO) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        // Convertendo DTOs para entidades e estabelecendo a relação com o condutor
+        List<Telefone> novosTelefones = novosTelefonesDTO.stream()
+                .map(dto -> telefoneService.convertToEntity(dto, condutor))
+                .collect(Collectors.toList());
+
+        // Adicionando os novos telefones ao condutor existente
+        condutor.getTelefones().addAll(novosTelefones);
+
+        // Validando se há no máximo um telefone principal
+        long telefonesPrincipais = condutor.getTelefones().stream().filter(Telefone::isTelefonePrincipal).count()
+                + novosTelefones.stream().filter(Telefone::isTelefonePrincipal).count();
+
+        if (telefonesPrincipais != 1) {
+            throw new IllegalArgumentException("Deve haver apenas um telefone marcado como principal.");
+        }
+
+        // Salvando o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Convertendo e retornando o DTO atualizado
+        return convertToDTO(savedCondutor);
     }
 
 }

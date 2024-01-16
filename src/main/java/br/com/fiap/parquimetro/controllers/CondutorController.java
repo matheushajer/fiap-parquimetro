@@ -1,6 +1,7 @@
 package br.com.fiap.parquimetro.controllers;
 
 import br.com.fiap.parquimetro.dto.CondutorDTO;
+import br.com.fiap.parquimetro.dto.TelefoneDTO;
 import br.com.fiap.parquimetro.services.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,13 @@ public class CondutorController {
     public ResponseEntity<Void> deleteCondutor(@PathVariable Long id) {
         condutorService.deleteCondutor(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/adicionar-telefones")
+    public ResponseEntity<CondutorDTO> adicionarNovosTelefonesAoCondutor(
+            @PathVariable Long id, @RequestBody List<TelefoneDTO> novosTelefonesDTO) {
+        CondutorDTO updatedCondutor = condutorService.adicionarNovosTelefonesAoCondutor(id, novosTelefonesDTO);
+        return ResponseEntity.ok(updatedCondutor);
     }
 
 
