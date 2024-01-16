@@ -107,6 +107,10 @@ public class CondutorService {
         return condutor;
     }
 
+    // ********************************************
+    // Seleção services básicos (CRUD)
+    // ********************************************
+
     @Transactional
     public CondutorDTO createCondutorDTO(CondutorDTO condutorDTO) {
         // Converter DTO para a entidade Condutor
@@ -129,7 +133,7 @@ public class CondutorService {
             condutor.setTelefones(telefones);
         }
 
-        if (condutorDTO.enderecosCondutor() != null){
+        if (condutorDTO.enderecosCondutor() != null) {
             List<Endereco> enderecos = condutorDTO.enderecosCondutor().stream()
                     .map(dto -> enderecoService.convertToEntity(dto, condutor))
                     .collect(Collectors.toList());
@@ -156,7 +160,6 @@ public class CondutorService {
         // Retornar o DTO após a operação de salvamento
         return convertToDTO(savedCondutor);
     }
-
 
     public CondutorDTO updateCondutorDTO(Long id, CondutorDTO condutorDTO) {
         Condutor existingCondutor = condutorRepository.findById(id)
@@ -256,6 +259,17 @@ public class CondutorService {
         }
     }
 
+    // ************************************************
+    // Seleção Atualização das informações de Telefone
+    // ************************************************
+
+    /**
+     * Método para efetuar adição de novos telefones ao Condutor
+     *
+     * @param condutorId
+     * @param novosTelefonesDTO
+     * @return CondutorDTO
+     */
     @Transactional(readOnly = true)
     public CondutorDTO adicionarNovosTelefonesAoCondutor(Long condutorId, List<TelefoneDTO> novosTelefonesDTO) {
         Condutor condutor = condutorRepository.findById(condutorId)
@@ -297,6 +311,51 @@ public class CondutorService {
 
         // Atualiza a lista de telefones no condutor
         condutor.setTelefones(telefonesAtualizados);
+
+        // Salva o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Converte e retorna o DTO atualizado
+        return convertToDTO(savedCondutor);
+    }
+
+    // ************************************************
+    // Seleção Atualização das informações de Veiculo
+    // ************************************************
+
+    @Transactional
+    public CondutorDTO adicionarVeiculosAoCondutor(Long condutorId, List<VeiculoDTO> veiculosDTO) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        // Converte DTOs para entidades e estabelece a relação com o condutor
+        List<Veiculo> veiculos = veiculosDTO.stream()
+                .map(dto -> veiculoService.convertToEntity(dto, condutor))
+                .collect(Collectors.toList());
+
+        // Adiciona os veículos ao condutor existente
+        condutor.getVeiculos().addAll(veiculos);
+
+        // Salva o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Converte e retorna o DTO atualizado
+        return convertToDTO(savedCondutor);
+    }
+
+    public CondutorDTO removerVeiculosDoCondutor(Long condutorId, List<Integer> ordens) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        List<Veiculo> veiculos = condutor.getVeiculos();
+
+        // Filtra os veículos que não devem ser removidos
+        List<Veiculo> veiculosAtualizados = veiculos.stream()
+                .filter(veiculo -> !ordens.contains(veiculos.indexOf(veiculo) + 1))
+                .collect(Collectors.toList());
+
+        // Atualiza a lista de veículos no condutor
+        condutor.setVeiculos(veiculosAtualizados);
 
         // Salva o condutor atualizado
         Condutor savedCondutor = condutorRepository.save(condutor);

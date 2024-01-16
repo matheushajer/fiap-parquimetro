@@ -2,6 +2,7 @@ package br.com.fiap.parquimetro.controllers;
 
 import br.com.fiap.parquimetro.dto.CondutorDTO;
 import br.com.fiap.parquimetro.dto.TelefoneDTO;
+import br.com.fiap.parquimetro.dto.VeiculoDTO;
 import br.com.fiap.parquimetro.services.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,10 @@ public class CondutorController {
         return ResponseEntity.noContent().build();
     }
 
+    // ************************************************
+    // Seleção Atualização das informações de Telefone
+    // ************************************************
+
     @PostMapping("/{id}/adicionar-telefones")
     public ResponseEntity<CondutorDTO> adicionarNovosTelefonesAoCondutor(
             @PathVariable Long id, @RequestBody List<TelefoneDTO> novosTelefonesDTO) {
@@ -60,5 +65,22 @@ public class CondutorController {
         return ResponseEntity.ok(updatedCondutor);
     }
 
+    // ************************************************
+    // Seleção Atualização das informações de Veiculo
+    // ************************************************
+
+    @PostMapping("/{id}/adicionar-veiculos")
+    public ResponseEntity<CondutorDTO> adicionarNovosVeiculosAoCondutor(
+            @PathVariable Long id, @RequestBody List<VeiculoDTO> novosVeiculosDTO) {
+        CondutorDTO updatedCondutor = condutorService.adicionarVeiculosAoCondutor(id, novosVeiculosDTO);
+        return ResponseEntity.ok(updatedCondutor);
+    }
+
+    @DeleteMapping("/{id}/remover-veiculos")
+    public ResponseEntity<CondutorDTO> removerVeiculosDoCondutor(
+            @PathVariable Long id, @RequestParam List<Integer> ordens) {
+        CondutorDTO updatedCondutor = condutorService.removerVeiculosDoCondutor(id, ordens);
+        return ResponseEntity.ok(updatedCondutor);
+    }
 
 }
