@@ -31,9 +31,9 @@ public class MetodoDePagamento {
         this.metodoDePagamento = metodoDePagamento;
     }
 
-    // getter e setter
-
-
+    // ************************************************
+    // Seleção Getter e Setter
+    // ************************************************
     public Long getId() {
         return id;
     }
