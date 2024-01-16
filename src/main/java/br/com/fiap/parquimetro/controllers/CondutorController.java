@@ -53,5 +53,12 @@ public class CondutorController {
         return ResponseEntity.ok(updatedCondutor);
     }
 
+    @DeleteMapping("/{id}/remover-telefones")
+    public ResponseEntity<CondutorDTO> removerTelefonesDoCondutor(
+            @PathVariable Long id, @RequestParam List<Integer> ordens) {
+        CondutorDTO updatedCondutor = condutorService.removerTelefonesDoCondutor(id, ordens);
+        return ResponseEntity.ok(updatedCondutor);
+    }
+
 
 }

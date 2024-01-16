@@ -284,4 +284,26 @@ public class CondutorService {
         return convertToDTO(savedCondutor);
     }
 
+    public CondutorDTO removerTelefonesDoCondutor(Long condutorId, List<Integer> ordens) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        List<Telefone> telefones = condutor.getTelefones();
+
+        // Filtra os telefones que não devem ser removidos
+        List<Telefone> telefonesAtualizados = telefones.stream()
+                .filter(telefone -> !ordens.contains(telefones.indexOf(telefone) + 1))
+                .collect(Collectors.toList());
+
+        // Atualiza a lista de telefones no condutor
+        condutor.setTelefones(telefonesAtualizados);
+
+        // Salva o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Converte e retorna o DTO atualizado
+        return convertToDTO(savedCondutor);
+    }
+
+
 }
