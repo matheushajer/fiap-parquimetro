@@ -2,10 +2,8 @@ package br.com.fiap.parquimetro.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -33,4 +31,30 @@ public class MetodoDePagamento {
         this.metodoDePagamento = metodoDePagamento;
     }
 
+    // getter e setter
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TipoDePagamento getMetodoDePagamento() {
+        return metodoDePagamento;
+    }
+
+    public void setMetodoDePagamento(TipoDePagamento metodoDePagamento) {
+        this.metodoDePagamento = metodoDePagamento;
+    }
+
+    public Condutor getCondutor() {
+        return condutor;
+    }
+
+    public void setCondutor(Condutor condutor) {
+        this.condutor = condutor;
+    }
 }
