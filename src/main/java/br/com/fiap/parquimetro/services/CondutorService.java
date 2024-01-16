@@ -364,5 +364,55 @@ public class CondutorService {
         return convertToDTO(savedCondutor);
     }
 
+    // ************************************************
+    // Seleção Atualização das informações de Enderço
+    // ************************************************
+
+    @Transactional
+    public CondutorDTO adicionarEnderecosAoCondutor(Long condutorId, List<EnderecoDTO> enderecosDTO) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        // Converte DTOs para entidades e estabelece a relação com o condutor
+        List<Endereco> enderecos = enderecosDTO.stream()
+                .map(dto -> enderecoService.convertToEntity(dto, condutor))
+                .collect(Collectors.toList());
+
+        // Adiciona os endereços ao condutor existente
+        condutor.getEnderecos().addAll(enderecos);
+
+        // Salva o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Converte e retorna o DTO atualizado
+        return convertToDTO(savedCondutor);
+    }
+
+    public CondutorDTO removerEnderecosDoCondutor(Long condutorId, List<Integer> ordens) {
+        Condutor condutor = condutorRepository.findById(condutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Condutor não encontrado pelo ID: " + condutorId));
+
+        List<Endereco> enderecos = condutor.getEnderecos();
+
+        // Criar uma nova lista para armazenar os endereços a serem removidos
+        List<Endereco> enderecosParaRemover = new ArrayList<>();
+
+        // Encontrar os endereços com base nas ordens especificadas
+        for (Integer ordem : ordens) {
+            if (ordem >= 1 && ordem <= enderecos.size()) {
+                enderecosParaRemover.add(enderecos.get(ordem - 1));
+            }
+        }
+
+        // Remover os endereços
+        enderecos.removeAll(enderecosParaRemover);
+
+        // Salvar o condutor atualizado
+        Condutor savedCondutor = condutorRepository.save(condutor);
+
+        // Converte e retorna o DTO atualizado
+        return convertToDTO(savedCondutor);
+    }
+
 
 }

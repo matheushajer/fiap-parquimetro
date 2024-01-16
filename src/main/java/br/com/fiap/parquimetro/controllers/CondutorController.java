@@ -1,6 +1,7 @@
 package br.com.fiap.parquimetro.controllers;
 
 import br.com.fiap.parquimetro.dto.CondutorDTO;
+import br.com.fiap.parquimetro.dto.EnderecoDTO;
 import br.com.fiap.parquimetro.dto.TelefoneDTO;
 import br.com.fiap.parquimetro.dto.VeiculoDTO;
 import br.com.fiap.parquimetro.services.CondutorService;
@@ -80,6 +81,24 @@ public class CondutorController {
     public ResponseEntity<CondutorDTO> removerVeiculosDoCondutor(
             @PathVariable Long id, @RequestParam List<Integer> ordens) {
         CondutorDTO updatedCondutor = condutorService.removerVeiculosDoCondutor(id, ordens);
+        return ResponseEntity.ok(updatedCondutor);
+    }
+
+    // ************************************************
+    // Seleção Atualização das informações de Enderço
+    // ************************************************
+
+    @PostMapping("/{id}/adicionar-enderecos")
+    public ResponseEntity<CondutorDTO> adicionarNovosEnderecosAoCondutor(
+            @PathVariable Long id, @RequestBody List<EnderecoDTO> novosEnderecosDTO) {
+        CondutorDTO updatedCondutor = condutorService.adicionarEnderecosAoCondutor(id, novosEnderecosDTO);
+        return ResponseEntity.ok(updatedCondutor);
+    }
+
+    @DeleteMapping("/{id}/remover-enderecos")
+    public ResponseEntity<CondutorDTO> removerEnderecosDoCondutor(
+            @PathVariable Long id, @RequestParam List<Integer> ordens) {
+        CondutorDTO updatedCondutor = condutorService.removerEnderecosDoCondutor(id, ordens);
         return ResponseEntity.ok(updatedCondutor);
     }
 
