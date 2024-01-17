@@ -11,11 +11,14 @@ ARTEFATO=$(echo "$REFERENCIA" | grep "<artifactId>" | sed -n 's/.*<artifactId>\(
 # Extrai o valor de versao da linha abaixo da linha do artifactId
 VERSAO=$(grep -A 1 -m 1 "<artifactId>$ARTEFATO</artifactId>" "$POM" | grep "<version>" | sed -n 's/.*<version>\(.*\)<\/version>.*/\1/p')
 
-# Define as variáveis de ambiente
-export PARQUIMETRO
-export VERSAO
+#Como as variaveis ficam presas no subshell sera utilizado um outro script para trazer as variaveis para o container:
+
+# Cria um arquivo temporário com as variáveis
+echo "export PARQUIMETRO=$ARTEFATO" > /tmp/variaveis.sh
+echo "export VERSAO=$VERSAO" >> /tmp/variaveis.sh
 
 # Exibe os valores encontrados
 echo "Parquimetro: $ARTEFATO"
 echo "Versao: $VERSAO"
+
 

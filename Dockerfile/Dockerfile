@@ -8,6 +8,10 @@ WORKDIR /tmp/fiap-parquimetro
 
 RUN chmod +x Dockerfile/coleta-envs.sh
 RUN bash Dockerfile/coleta-envs.sh
+RUN chmod +x /tmp/variaveis.sh
+RUN source /tmp/variaveis.sh
+
+RUN printenv
 # Compila o jar
 RUN mvn clean package
 
@@ -19,5 +23,5 @@ EXPOSE 8081
 WORKDIR /app
 
 # Define o comando para iniciar a API
-CMD java -jar $(echo $ARTEFATO)-$(echo $VERSAO).jar
+CMD java -jar $ARTEFATO-$VERSAO.jar
 
