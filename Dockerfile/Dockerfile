@@ -19,5 +19,5 @@ EXPOSE 8081
 WORKDIR /app
 
 # Define o comando para iniciar a API
-CMD java -jar parquimetro-0.0.1-SNAPSHOT.jar
+CMD java -jar $(echo $ARTEFATO)-$(echo $VERSAO).jar
 
