@@ -37,6 +37,10 @@ public class Condutor {
     @Fetch(FetchMode.JOIN)
     private List<Veiculo> veiculos;
 
+    @OneToMany(mappedBy = "condutor", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
+    private List<Estacionamento> estacionamentos;
+
 
     public Condutor(String nome, String cpf, String email) {
         this.nome = nome;
@@ -47,7 +51,6 @@ public class Condutor {
     // ************************************************
     // Seleção Getter e Setter
     // ************************************************
-
 
     public Long getId() {
         return id;
@@ -111,5 +114,13 @@ public class Condutor {
 
     public void setVeiculos(List<Veiculo> veiculos) {
         this.veiculos = veiculos;
+    }
+
+    public List<Estacionamento> getEstacionamentos() {
+        return estacionamentos;
+    }
+
+    public void setEstacionamentos(List<Estacionamento> estacionamentos) {
+        this.estacionamentos = estacionamentos;
     }
 }
