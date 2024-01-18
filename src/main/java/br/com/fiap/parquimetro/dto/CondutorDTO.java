@@ -9,7 +9,8 @@ public record CondutorDTO(
         List<TelefoneDTO> telefonesCondutor,
         List<EnderecoDTO> enderecosCondutor,
         List<VeiculoDTO> veiculosCondutor,
-        List<MetodoDePagamentoDTO> metodosCondutor
+        List<MetodoDePagamentoDTO> metodosCondutor,
+        List<EstacionamentoDTO> estacionamentoCondutor
 ) {
 
 }

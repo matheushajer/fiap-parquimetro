@@ -33,6 +33,10 @@ public class CondutorService {
     @Autowired
     private MetodoDePagamentoService metodoDePagamentoService;
 
+    @Autowired
+    private EstacionamentoService estacionamentoService;
+
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -54,6 +58,10 @@ public class CondutorService {
                 ? condutor.getFormaDePagamento().stream().map(metodoDePagamentoService::convertToDTO).collect(Collectors.toList())
                 : new ArrayList<>();
 
+        List<EstacionamentoDTO> estacionamentoDTO = (condutor.getEstacionamentos() != null)
+                ? condutor.getEstacionamentos().stream().map(estacionamentoService::convertToDTO).collect(Collectors.toList())
+                : new ArrayList<>();
+
         return new CondutorDTO(
                 condutor.getNome(),
                 condutor.getCpf(),
@@ -61,7 +69,8 @@ public class CondutorService {
                 telefonesDTO,
                 enderecosDTO,
                 veiculosDTO,
-                metodosDTO
+                metodosDTO,
+                estacionamentoDTO
         );
     }
 
@@ -214,6 +223,7 @@ public class CondutorService {
         Hibernate.initialize(condutor.getEnderecos());
         Hibernate.initialize(condutor.getVeiculos());
         Hibernate.initialize(condutor.getFormaDePagamento());
+        Hibernate.initialize(condutor.getEstacionamentos());
 
         return convertToDTO(condutor);
     }
@@ -463,8 +473,6 @@ public class CondutorService {
         // Converte e retorna o DTO atualizado
         return convertToDTO(savedCondutor);
     }
-
-
 
 
 }
