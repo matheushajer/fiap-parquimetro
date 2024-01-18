@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class EstacionamentoService {
@@ -51,7 +52,7 @@ public class EstacionamentoService {
         } else if (estacionamento.getTipoPermanencia() == Estacionamento.TipoDePermanencia.VARIAVEL) {
             // Lógica para VARIAVEL
             estacionamento.setPeriodoEncerrado(true);
-            estacionamento.setHoraFinal(LocalDateTime.now());
+            estacionamento.setHoraFinal(calcularHoraFinal(estacionamentoDTO));
             estacionamento.setValorTotal(calcularValorTotal(estacionamento));
         }
 
@@ -78,14 +79,22 @@ public class EstacionamentoService {
         if (estacionamentoDTO.tipoPermanencia() == Estacionamento.TipoDePermanencia.FIXO) {
             return LocalDateTime.now().plusHours(estacionamentoDTO.tempoPrevisto());
         } else {
-            LocalDateTime horaFinal = LocalDateTime.now();
+            LocalDateTime horaFinalInicial = LocalDateTime.now();
 
-            // Arredonda para a próxima hora cheia
-            if (horaFinal.getMinute() > 0 || horaFinal.getSecond() > 0 || horaFinal.getNano() > 0) {
-                horaFinal = horaFinal.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+            // Arredonda para cima para a próxima hora cheia
+            if (horaFinalInicial.getMinute() > 0 || horaFinalInicial.getSecond() > 0 || horaFinalInicial.getNano() > 0) {
+                horaFinalInicial = horaFinalInicial.plusHours(1);
             }
 
-            return horaFinal;
+            // Garante que a hora final seja uma diferença exata de horas da hora inicial
+            long horasDeDiferenca = ChronoUnit.HOURS.between(estacionamentoDTO.horaInicial(), horaFinalInicial);
+
+            // Se a diferença for menor que uma hora, ajusta para a próxima hora cheia
+            if (horasDeDiferenca < 1) {
+                horaFinalInicial = horaFinalInicial.plusHours(1);
+            }
+
+            return horaFinalInicial;
         }
     }
 
