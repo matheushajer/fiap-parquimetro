@@ -2,7 +2,6 @@ package br.com.fiap.parquimetro.services;
 
 import br.com.fiap.parquimetro.dto.*;
 import br.com.fiap.parquimetro.entities.Condutor;
-import br.com.fiap.parquimetro.entities.Endereco;
 import br.com.fiap.parquimetro.entities.Recibo;
 import br.com.fiap.parquimetro.repositories.ReciboRepository;
 import org.springframework.beans.factory.annotation.Autowired;
