@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "tb_veiculos")
 public class Veiculo {
 
@@ -23,6 +22,9 @@ public class Veiculo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
+
+    public Veiculo() {
+    }
 
     public Veiculo(String modelo, String cor, String placa) {
         this.modelo = modelo;

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "tb_telefones")
 public class Telefone {
@@ -21,6 +20,9 @@ public class Telefone {
     @ManyToOne
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
+
+    public Telefone() {
+    }
 
     public Telefone(int ddi, int ddd, int numeroTelefone, boolean isTelefonePrincipal) {
         this.ddi = ddi;

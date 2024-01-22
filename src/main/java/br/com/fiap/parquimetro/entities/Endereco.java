@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "tb_enderecos")
 public class Endereco {
@@ -24,6 +23,9 @@ public class Endereco {
     @ManyToOne
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
+
+    public Endereco() {
+    }
 
     public Endereco(String cep, String logradouro, String numero, String complemento, String bairro, String cidade, String uf) {
         this.cep = cep;

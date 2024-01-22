@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "tb_metodos_de_pagamento")
 public class MetodoDePagamento {
@@ -29,6 +28,9 @@ public class MetodoDePagamento {
 
     public MetodoDePagamento(TipoDePagamento metodoDePagamento) {
         this.metodoDePagamento = metodoDePagamento;
+    }
+
+    public MetodoDePagamento() {
     }
 
     // ************************************************

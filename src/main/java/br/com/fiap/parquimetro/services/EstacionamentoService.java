@@ -56,6 +56,8 @@ public class EstacionamentoService {
             estacionamento.setValorTotal(calcularValorTotal(estacionamento));
         }
 
+        //Cria recibo
+
         // Salvar as alterações no repositório
         Estacionamento savedEstacionamento = estacionamentoRepository.save(estacionamento);
 

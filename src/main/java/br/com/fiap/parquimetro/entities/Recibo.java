@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "tb_recibo")
 public class Recibo {
@@ -32,6 +31,9 @@ public class Recibo {
     @ManyToOne
     @JoinColumn(name = "condutor_id")
     private Condutor condutor;
+
+    public Recibo() {
+    }
 
     public Recibo(String nomeCondutor, String cpfCondutor, String placa, String modelo, String cor, Estacionamento.TipoDePermanencia tipoPermanencia, BigDecimal valorHora, LocalDateTime horaInicial, LocalDateTime horaFinal, BigDecimal valorTotal, MetodoDePagamento.TipoDePagamento metodoDePagamento) {
         this.nomeCondutor = nomeCondutor;

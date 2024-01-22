@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "tb_estacionamento")
@@ -35,6 +34,9 @@ public class Estacionamento {
 
     @Enumerated(EnumType.STRING)
     private TipoDePermanencia tipoPermanencia;
+
+    public Estacionamento() {
+    }
 
     // ************************************************
     // Seleção Getter e Setter
