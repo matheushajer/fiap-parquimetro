@@ -1,15 +1,10 @@
 package br.com.fiap.parquimetro.dto;
 
-import br.com.fiap.parquimetro.entities.Condutor;
 import br.com.fiap.parquimetro.entities.Estacionamento;
 import br.com.fiap.parquimetro.entities.MetodoDePagamento;
-import br.com.fiap.parquimetro.entities.Veiculo;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 public record ReciboDTO(
 
