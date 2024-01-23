@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: parquimetro-configmap
+data:
+  postgres_db: "citus-db"
+  

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parquimetro-app
+  labels:
+    app: parquimetro-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: parquimetro-app
+  template:
+    metadata:
+      name: parquimetro-app
+      labels:
+        app: parquimetro-app
+    spec:
+      containers:
+        - name: parquimetro-app
+          image: yuriesena/fiap-parquimetro
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_db
+                  name: parquimetro-configmap
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_user
+                  name: parquimetro-configmap
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  key: spring_profiles_active
+                  name: parquimetro-configmap
+          resources:
+            requests:
+              memory: 500Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 1
+      restartPolicy: Always
+      

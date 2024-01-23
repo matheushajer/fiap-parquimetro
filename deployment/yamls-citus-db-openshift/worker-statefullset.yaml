@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: citus-worker
+  labels:
+   app.openshift.io/runtime: postgresql
+   app.kubernetes.io/part-of: citus-db
   annotations:
     reloader.stakater.com/auto: 'true'
 spec:
@@ -18,10 +21,8 @@ spec:
         app: citus-worker
     spec:
       serviceAccountName: pipeline
-      ##########################################
-      #         reset key perm
       initContainers:
-      - name: fix-permissions
+      - name: fix-permissions-pgdata
         command:
           - sh
           - '-c'
@@ -32,6 +33,16 @@ spec:
           - name: data
             mountPath: /var/lib/postgresql/data
         image: 'busybox:1.32'
+      - name: fix-permissions-server-key
+        image: 'busybox:1.32'
+        command:
+          - sh
+          - '-c'
+          - arquivo="/var/lib/postgresql/data/pgdata/server.key" && [ -e "$arquivo" ] && chmod -R 0600 "$arquivo" && echo "Permissões alteradas com sucesso para $arquivo" || echo "O arquivo $arquivo não existe, seguindo com a inicialização."
+        resources: { }
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data
       ##########################################
       #         main container
       containers:

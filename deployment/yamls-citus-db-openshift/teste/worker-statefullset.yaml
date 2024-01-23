@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: citus
-  labels:
-    app: citus
-    app.openshift.io/runtime: postgresql
-    app.kubernetes.io/part-of: citus-db
+  name: citus-worker
   annotations:
     reloader.stakater.com/auto: 'true'
 spec:
   selector:
     matchLabels:
-      app: citus
-  serviceName: citus
+      app: citus-worker
+  serviceName: citus-worker
   replicas: 1
+  podManagementPolicy: Parallel
   template:
     metadata:
+      name: citus-worker
       labels:
-        app: citus
+        app: citus-worker
     spec:
       serviceAccountName: pipeline
+      ##########################################
+      #         reset key perm
       initContainers:
-      - name: fix-permissions-pgdata
+      - name: fix-permissions
         command:
           - sh
           - '-c'
@@ -31,32 +31,19 @@ spec:
         volumeMounts:
           - name: data
             mountPath: /var/lib/postgresql/data
-
         image: 'busybox:1.32'
-      - name: fix-permissions-server-key
-        image: 'busybox:1.32'
-        command:
-        - sh
-        - '-c'
-        - arquivo="/var/lib/postgresql/data/pgdata/server.key" && [ -e "$arquivo" ] && chmod -R 0600 "$arquivo" && echo "Permissões alteradas com sucesso para $arquivo" || echo "O arquivo $arquivo não existe, seguindo com a inicialização."
-        resources: { }
-        volumeMounts:
-        - name: data
-          mountPath: /var/lib/postgresql/data
-
       ##########################################
       #         main container
       containers:
       - name: postgres
         image: citusdata/citus:11.0.2-alpine
-        imagePullPolicy: IfNotPresent
         args:
         - sh
         - -c
         - |
           sh <<'SH' &
-          node_name=citus.${POD_NAMESPACE}.svc.cluster.local;
-          
+          node_name=${HOSTNAME}.citus-worker.${POD_NAMESPACE}.svc.cluster.local;
+
           echo [$(date -Iseconds)] Wait pg_isready;
           timeout 5m sh -c 'until pg_isready -U postgres --timeout=5 --quiet; do sleep 2; done;';
           pg_isready -U postgres --quiet || { echo pg not ready; kill -9 1; exit 1; };
@@ -67,30 +54,25 @@ spec:
           echo [$(date -Iseconds)] Wait name resolve ${node_name};
           timeout 1m sh -c "until nslookup ${node_name} > /dev/null; do sleep 2; done;";
           nslookup ${node_name} > /dev/null || { echo Name not ready; kill -9 1; exit 1; }
-          
-          echo [$(date -Iseconds)] citus_set_coordinator_host ${node_name};
-          su-exec postgres psql -c "SELECT * from citus_set_coordinator_host('${node_name}', 5432);"  || {
-            echo citus_set_coordinator_host failed;
+
+          echo [$(date -Iseconds)] Wait manager;
+          timeout 5m sh -c "until psql 'host=citus user=postgres' -c 'SELECT citus_is_coordinator()' > /dev/null; do sleep 2; done;";
+          psql 'host=citus user=postgres' -c 'SELECT citus_is_coordinator()' > /dev/null || { echo Manager not ready; kill -9 1; exit 1; }
+
+          echo [$(date -Iseconds)] citus_add_node ${node_name};
+          psql 'host=citus user=postgres' -c "SELECT * from citus_add_node('${node_name}', 5432);" || {
+            echo citus_add_node failed;
             kill -9 1;
           }
           SH
-          
-          su-exec postgres "/usr/local/bin/docker-entrypoint.sh" "postgres" \
-          -c wal_level=replica \
-          -c config_file=/etc/postgres/postgresql.conf \
-          -c hba_file=/etc/postgres/pg_hba.conf \
-          ;
 
+          su-exec postgres "/usr/local/bin/docker-entrypoint.sh" "postgres" \
+            -c config_file=/etc/postgres/postgresql.conf \
+            -c hba_file=/etc/postgres/pg_hba.conf \
+          ;
         ports:
         - containerPort: 5432
           name: postgres
-        resources:
-          limits:
-            cpu: 1
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 500Mi
         env:
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
@@ -109,12 +91,28 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 500Mi
         volumeMounts:
         - name: data
           mountPath: /var/lib/postgresql/data
         - name: conf
           mountPath: "/etc/postgres"
           readOnly: true
+
+        startupProbe:
+          exec:
+            command:
+            - 'pg_isready'
+            - '-U'
+            - 'postgres'
+            - '--timeout=5'
+            - '--quiet'
 
         livenessProbe:
           exec:
@@ -124,41 +122,9 @@ spec:
             - 'postgres'
             - '--timeout=5'
             - '--quiet'
-          initialDelaySeconds: 60
+          periodSeconds: 30
+          initialDelaySeconds: 30
 
-      - name: pgbouncer
-        image: bitnami/pgbouncer:1.17.0
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 6432
-          name: pgbouncer
-        resources:
-          limits:
-            cpu: 1
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 500Mi
-        env:
-        - name: POSTGRESQL_HOST
-          value: citus
-        - name: POSTGRESQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: citus-secrets
-              key: password
-        - name: PGBOUNCER_AUTH_TYPE
-          value: trust
-        - name: PGBOUNCER_CLIENT_TLS_SSLMODE
-          value: disable
-        - name: PGBOUNCER_IGNORE_STARTUP_PARAMETERS
-          value: extra_float_digits
-
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - all
       volumes:
       - name: conf
         configMap:
@@ -168,7 +134,7 @@ spec:
   - metadata:
       name: data
       labels:
-        app: citus
+        app: citus-worker
     spec:
       accessModes: [ "ReadWriteOnce" ]
       storageClassName: gp2
