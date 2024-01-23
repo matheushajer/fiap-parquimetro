@@ -40,11 +40,27 @@
             <artifactId>lombok</artifactId>
             <version>1.18.22</version>
         </dependency>
+        <!-- Inicio configuracao para uso de postgres -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.1</version>
         </dependency>
+        <!-- Fim configuracao para uso de postgres -->
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <!-- Inicio configuracao para uso de H2 -->
+        <!--
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        -->
+        <!-- Fim configuracao para uso de H2 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
