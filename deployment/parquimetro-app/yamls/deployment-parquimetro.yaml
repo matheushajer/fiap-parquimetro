@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: parquimetro-app
   labels:
+    app.kubernetes.io/part-of: fiap-parquimetro-app
+    app.openshift.io/runtime: spring-boot
     app: parquimetro-app
 spec:
   replicas: 1
@@ -17,26 +19,10 @@ spec:
     spec:
       containers:
         - name: parquimetro-app
-          image: yuriesena/fiap-parquimetro
+          image: yuriesena/fiap-parquimetro:teste-db
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
-          env:
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  key: postgres_db
-                  name: parquimetro-configmap
-            - name: POSTGRES_USER
-              valueFrom:
-                configMapKeyRef:
-                  key: postgres_user
-                  name: parquimetro-configmap
-            - name: SPRING_PROFILES_ACTIVE
-              valueFrom:
-                configMapKeyRef:
-                  key: spring_profiles_active
-                  name: parquimetro-configmap
           resources:
             requests:
               memory: 500Mi

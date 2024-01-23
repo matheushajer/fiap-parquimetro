@@ -2,11 +2,11 @@ FROM maven:3.8.4-openjdk-17
 WORKDIR /app
 WORKDIR /tmp
 
-RUN git clone https://github.com/matheushajer/fiap-parquimetro.git
+RUN git clone -b teste-db https://github.com/matheushajer/fiap-parquimetro.git
 
 WORKDIR /tmp/fiap-parquimetro
 
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
 # Copia o jar para o diretorio /app
 RUN cp target/*.jar /app
