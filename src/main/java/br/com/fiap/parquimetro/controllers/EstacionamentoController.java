@@ -1,6 +1,7 @@
 package br.com.fiap.parquimetro.controllers;
 
 import br.com.fiap.parquimetro.dto.EstacionamentoDTO;
+import br.com.fiap.parquimetro.dto.ReciboDTO;
 import br.com.fiap.parquimetro.services.EstacionamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,8 @@ public class EstacionamentoController {
     }
 
     @PostMapping("/encerrar/{id}")
-    public ResponseEntity<EstacionamentoDTO> encerrarPeriodoDeEstacionamento(@PathVariable Long id) {
-        EstacionamentoDTO resultado = estacionamentoService.encerrarPeriodoDeEstacionamento(id);
+    public ResponseEntity<ReciboDTO> encerrarPeriodoDeEstacionamento(@PathVariable Long id) {
+        ReciboDTO resultado = estacionamentoService.encerrarPeriodoDeEstacionamento(id);
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
 

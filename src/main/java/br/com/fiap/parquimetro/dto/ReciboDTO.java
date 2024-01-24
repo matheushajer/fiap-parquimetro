@@ -7,20 +7,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record ReciboDTO(
-
-        Long reciboId,
+        Long id,
+        Long condutorId,
         String nomeCondutor,
         String cpfCondutor,
-        String placa,
-        String modelo,
-        String cor,
+        String placaVeiculo,
+        String modeloVeiculo,
         Estacionamento.TipoDePermanencia tipoPermanencia,
-        BigDecimal valorHora,
-        LocalDateTime horaInicial,
+        LocalDateTime horaInicio,
         LocalDateTime horaFinal,
         BigDecimal valorTotal,
-        MetodoDePagamento.TipoDePagamento metodoDePagamento
-
+        MetodoDePagamento.TipoDePagamento tipoDePagamento
 ) {
-
 }

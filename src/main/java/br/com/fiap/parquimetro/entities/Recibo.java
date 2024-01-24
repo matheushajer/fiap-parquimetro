@@ -2,7 +2,6 @@ package br.com.fiap.parquimetro.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,38 +15,37 @@ public class Recibo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nomeCondutor;
-    private String cpfCondutor;
-    private String placa;
-    private String modelo;
-    private String cor;
-    private Estacionamento.TipoDePermanencia tipoPermanencia;
-    private BigDecimal valorHora;
-    private LocalDateTime horaInicial;
-    private LocalDateTime horaFinal;
-    private BigDecimal valorTotal;
-    private MetodoDePagamento.TipoDePagamento metodoDePagamento;
-
     @ManyToOne
-    @JoinColumn(name = "condutor_id")
+    @JoinColumn(name = "condutor_id", nullable = false)
     private Condutor condutor;
+
+    @Column(nullable = false)
+    private String nomeCondutor;
+
+    @Column(nullable = false)
+    private String cpfCondutor;
+
+    @Column(nullable = false)
+    private String placaVeiculo;
+
+    @Column(nullable = false)
+    private String modeloVeiculo;
+
+    @Enumerated(EnumType.STRING)
+    private Estacionamento.TipoDePermanencia tipoPermanencia;
+
+    private LocalDateTime horaInicio;
+
+    private LocalDateTime horaFinal;
+
+    private BigDecimal valorTotal;
+
+    @Enumerated(EnumType.STRING)
+    private MetodoDePagamento.TipoDePagamento metodoDePagamento;
 
     public Recibo() {
     }
 
-    public Recibo(String nomeCondutor, String cpfCondutor, String placa, String modelo, String cor, Estacionamento.TipoDePermanencia tipoPermanencia, BigDecimal valorHora, LocalDateTime horaInicial, LocalDateTime horaFinal, BigDecimal valorTotal, MetodoDePagamento.TipoDePagamento metodoDePagamento) {
-        this.nomeCondutor = nomeCondutor;
-        this.cpfCondutor = cpfCondutor;
-        this.placa = placa;
-        this.modelo = modelo;
-        this.cor = cor;
-        this.tipoPermanencia = tipoPermanencia;
-        this.valorHora = valorHora;
-        this.horaInicial = horaInicial;
-        this.horaFinal = horaFinal;
-        this.valorTotal = valorTotal;
-        this.metodoDePagamento = metodoDePagamento;
-    }
 
     // ************************************************
     // Seleção Getter e Setter
@@ -60,6 +58,14 @@ public class Recibo {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Condutor getCondutor() {
+        return condutor;
+    }
+
+    public void setCondutor(Condutor condutor) {
+        this.condutor = condutor;
     }
 
     public String getNomeCondutor() {
@@ -78,28 +84,20 @@ public class Recibo {
         this.cpfCondutor = cpfCondutor;
     }
 
-    public String getPlaca() {
-        return placa;
+    public String getPlacaVeiculo() {
+        return placaVeiculo;
     }
 
-    public void setPlaca(String placa) {
-        this.placa = placa;
+    public void setPlacaVeiculo(String placaVeiculo) {
+        this.placaVeiculo = placaVeiculo;
     }
 
-    public String getModelo() {
-        return modelo;
+    public String getModeloVeiculo() {
+        return modeloVeiculo;
     }
 
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
-
-    public String getCor() {
-        return cor;
-    }
-
-    public void setCor(String cor) {
-        this.cor = cor;
+    public void setModeloVeiculo(String modeloVeiculo) {
+        this.modeloVeiculo = modeloVeiculo;
     }
 
     public Estacionamento.TipoDePermanencia getTipoPermanencia() {
@@ -110,20 +108,12 @@ public class Recibo {
         this.tipoPermanencia = tipoPermanencia;
     }
 
-    public BigDecimal getValorHora() {
-        return valorHora;
+    public LocalDateTime getHoraInicio() {
+        return horaInicio;
     }
 
-    public void setValorHora(BigDecimal valorHora) {
-        this.valorHora = valorHora;
-    }
-
-    public LocalDateTime getHoraInicial() {
-        return horaInicial;
-    }
-
-    public void setHoraInicial(LocalDateTime horaInicial) {
-        this.horaInicial = horaInicial;
+    public void setHoraInicio(LocalDateTime horaInicio) {
+        this.horaInicio = horaInicio;
     }
 
     public LocalDateTime getHoraFinal() {
@@ -148,13 +138,5 @@ public class Recibo {
 
     public void setMetodoDePagamento(MetodoDePagamento.TipoDePagamento metodoDePagamento) {
         this.metodoDePagamento = metodoDePagamento;
-    }
-
-    public Condutor getCondutor() {
-        return condutor;
-    }
-
-    public void setCondutor(Condutor condutor) {
-        this.condutor = condutor;
     }
 }

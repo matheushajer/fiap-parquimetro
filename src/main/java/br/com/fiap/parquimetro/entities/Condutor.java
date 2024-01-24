@@ -127,4 +127,12 @@ public class Condutor {
     public void setEstacionamentos(List<Estacionamento> estacionamentos) {
         this.estacionamentos = estacionamentos;
     }
+
+    public List<Recibo> getRecibos() {
+        return recibos;
+    }
+
+    public void setRecibos(List<Recibo> recibos) {
+        this.recibos = recibos;
+    }
 }

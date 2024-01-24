@@ -1,6 +1,7 @@
 package br.com.fiap.parquimetro.services;
 
 import br.com.fiap.parquimetro.dto.EstacionamentoDTO;
+import br.com.fiap.parquimetro.dto.ReciboDTO;
 import br.com.fiap.parquimetro.entities.Estacionamento;
 import br.com.fiap.parquimetro.repositories.CondutorRepository;
 import br.com.fiap.parquimetro.repositories.EstacionamentoRepository;
@@ -21,6 +22,9 @@ public class EstacionamentoService {
     @Autowired
     private CondutorRepository condutorRepository;
 
+    @Autowired
+    private ReciboService reciboService;
+
     public EstacionamentoDTO iniciarPeriodoDeEstacionamento(EstacionamentoDTO estacionamentoDTO) {
         Estacionamento estacionamento = new Estacionamento();
         estacionamento.setCondutor(condutorRepository.findById(estacionamentoDTO.condutorId())
@@ -39,7 +43,7 @@ public class EstacionamentoService {
         return convertToDTO(savedEstacionamento);
     }
 
-    public EstacionamentoDTO encerrarPeriodoDeEstacionamento(Long estacionamentoId) {
+    public ReciboDTO encerrarPeriodoDeEstacionamento(Long estacionamentoId) {
         Estacionamento estacionamento = estacionamentoRepository.findById(estacionamentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Estacionamento não encontrado pelo ID: "
                         + estacionamentoId));
@@ -56,12 +60,14 @@ public class EstacionamentoService {
             estacionamento.setValorTotal(calcularValorTotal(estacionamento));
         }
 
-        //Cria recibo
-
         // Salvar as alterações no repositório
         Estacionamento savedEstacionamento = estacionamentoRepository.save(estacionamento);
 
-        return convertToDTO(savedEstacionamento);
+        // Criando recibo
+        ReciboDTO reciboDTO = reciboService.criarRecibo(estacionamento.getCondutor(), savedEstacionamento);
+
+
+        return reciboDTO;
     }
 
     public EstacionamentoDTO convertToDTO(Estacionamento estacionamento) {

@@ -36,6 +36,9 @@ public class CondutorService {
     @Autowired
     private EstacionamentoService estacionamentoService;
 
+    @Autowired
+    private ReciboService reciboService;
+
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -62,6 +65,10 @@ public class CondutorService {
                 ? condutor.getEstacionamentos().stream().map(estacionamentoService::convertToDTO).collect(Collectors.toList())
                 : new ArrayList<>();
 
+        List<ReciboDTO> reciboDTO = (condutor.getRecibos() != null)
+                ? condutor.getRecibos().stream().map(reciboService::convertToDTO).collect(Collectors.toList())
+                : new ArrayList<>();
+
         return new CondutorDTO(
                 condutor.getNome(),
                 condutor.getCpf(),
@@ -70,7 +77,8 @@ public class CondutorService {
                 enderecosDTO,
                 veiculosDTO,
                 metodosDTO,
-                estacionamentoDTO
+                estacionamentoDTO,
+                reciboDTO
         );
     }
 

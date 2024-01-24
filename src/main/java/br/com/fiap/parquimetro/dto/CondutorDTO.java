@@ -10,7 +10,8 @@ public record CondutorDTO(
         List<EnderecoDTO> enderecosCondutor,
         List<VeiculoDTO> veiculosCondutor,
         List<MetodoDePagamentoDTO> metodosCondutor,
-        List<EstacionamentoDTO> estacionamentoCondutor
+        List<EstacionamentoDTO> estacionamentoCondutor,
+        List<ReciboDTO> recibos
 ) {
 
 }
