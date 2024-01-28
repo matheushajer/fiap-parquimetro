@@ -2,19 +2,27 @@ package br.com.fiap.parquimetro.services;
 
 import br.com.fiap.parquimetro.dto.EstacionamentoDTO;
 import br.com.fiap.parquimetro.dto.ReciboDTO;
+import br.com.fiap.parquimetro.entities.Condutor;
 import br.com.fiap.parquimetro.entities.Estacionamento;
 import br.com.fiap.parquimetro.repositories.CondutorRepository;
 import br.com.fiap.parquimetro.repositories.EstacionamentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
 
 @Service
+@Component @EnableScheduling
 public class EstacionamentoService {
 
     @Autowired
@@ -24,6 +32,9 @@ public class EstacionamentoService {
 
     @Autowired
     private ReciboService reciboService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public EstacionamentoDTO iniciarPeriodoDeEstacionamento(EstacionamentoDTO estacionamentoDTO) {
         Estacionamento estacionamento = new Estacionamento();
@@ -53,6 +64,9 @@ public class EstacionamentoService {
         if (estacionamento.getTipoPermanencia() == Estacionamento.TipoDePermanencia.FIXO) {
             // Lógica para FIXO
             estacionamento.setPeriodoEncerrado(true);
+            var condutor = condutorRepository.findById(estacionamentoDTO.condutorId());
+            notificationService.validateCondutorSMS(condutor.get().getCpf(), "Periodo de estacionamento fixo encerrado.");
+            notificationService.validateCondutorEMAIL(condutor.get().getCpf(), "AVISO - Estacionamento", "Periodo de estacionamento fixo encerrado.");
         } else if (estacionamento.getTipoPermanencia() == Estacionamento.TipoDePermanencia.VARIAVEL) {
             // Lógica para VARIAVEL
             estacionamento.setPeriodoEncerrado(true);
@@ -116,4 +130,33 @@ public class EstacionamentoService {
         return estacionamento.getValorHora().multiply(BigDecimal.valueOf(horas));
     }
 
+    // Método agendado para executar a cada hora
+    //@Scheduled(cron = "0 0 * * * *")
+    @Scheduled(fixedRate = 60000)
+    public String sendHourlyNotification() {
+        List<Long> estacionamentoIds = estacionamentoRepository.findAllId();
+
+        for (Long id : estacionamentoIds) {
+            Optional<Estacionamento> estacionamentoOpt = estacionamentoRepository.findById(id);
+            if (estacionamentoOpt.isPresent()) {
+                Estacionamento estacionamento = estacionamentoOpt.get();
+                if (estacionamento.getHoraFinal() == null && estacionamento.getHoraInicial() != null) {
+                    LocalDateTime now = LocalDateTime.now();
+                    long diffInMinutes = ChronoUnit.MINUTES.between(estacionamento.getHoraInicial(), now);
+
+                    // Se passou pelo menos 60 minutos desde a hora inicial
+                    if (diffInMinutes >= 60 && diffInMinutes % 60 == 0)  {
+                    var condutorOpt = condutorRepository.findById(id);
+                    if (condutorOpt.isPresent()) {
+                        Condutor condutor = condutorOpt.get();
+                        notificationService.validateCondutorEMAIL(condutor.getCpf(), "AVISO - Estacionamento", "Acrescimo de 1 hora no seu tempo de estacionsmento variavel.");
+                        notificationService.validateCondutorSMS(condutor.getCpf(), "Acrescimo de 1 hora no seu tempo de estacionsmento variavel.");
+                    }
+                    }
+                }
+            }
+            return "Notificação de hora enviada com sucesso.";
+        }
+        return "Nao possui registros para envio.";
+    }
 }

@@ -1,7 +1,6 @@
 package br.com.fiap.parquimetro.services;
 
-import br.com.fiap.parquimetro.dto.CondutorDTO;
-import br.com.fiap.parquimetro.dto.TelefoneDTO;
+import br.com.fiap.parquimetro.dto.*;
 import br.com.fiap.parquimetro.entities.Condutor;
 import br.com.fiap.parquimetro.repositories.CondutorRepository;
 import com.sendgrid.helpers.mail.Mail;
@@ -14,64 +13,62 @@ import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
 import org.modelmapper.ModelMapper;
 import com.sendgrid.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
     @Autowired
     CondutorRepository condutorRepository;
     @Autowired
-    CondutorService condutorService;
+    TelefoneService telefoneService;
 
-    public String validateCondutor(String cpf) {
-        boolean enviosms = false, envioemail = false;
+    public String validateCondutorSMS(String cpf, String body) {
         if (validateCPF(cpf)) {
             var cpfExists = condutorRepository.findByCpf(cpf);
             if (cpfExists.isPresent()) {
-                var condutor = condutorService.convertToDTO(cpfExists.get());
-                var telefonesPrincipais = condutor.telefonesCondutor().stream()
-                        .filter(TelefoneDTO::isTelefonePrincipal)
-                        .count();
-                if (telefonesPrincipais > 0) {
-                    for (int i = 0; i < condutor.telefonesCondutor().size(); i++) {
-                        var telefonePrincipal = condutor.telefonesCondutor().get(i).isTelefonePrincipal();
-                        if (telefonePrincipal) {
-                            String DDtelefone = Integer.toString(condutor.telefonesCondutor().get(i).ddd() + condutor.telefonesCondutor().get(i).numeroTelefone());
-                            sendSMS(condutor.telefonesCondutor().get(i).ddi(), condutor.telefonesCondutor().get(i).ddd(), condutor.telefonesCondutor().get(i).numeroTelefone(), condutor.nomeCondutor());
-                            enviosms = true;
+                List<TelefoneDTO> telefonesDTO = (cpfExists.get().getTelefones() != null)
+                        ? cpfExists.get().getTelefones().stream().map(telefoneService::convertToDTO).collect(Collectors.toList())
+                        : new ArrayList<>();
+                    for (int i = 0; i < telefonesDTO.size(); i++) {
+                        var telefoneprincipalexists = telefonesDTO.get(i).isTelefonePrincipal();
+                        if (telefoneprincipalexists) {
+                            sendSMS(telefonesDTO.get(i).ddi(), telefonesDTO.get(i).ddd(), telefonesDTO.get(i).numeroTelefone(), body);
                         }
                     }
-                } else {
-                    enviosms = false;
-                    return "Nao possui numeros principais cadastrados. Defina um numero como principal.";
-                }
+                return "SMS enviado com sucesso";
+            } else {
+                throw new RuntimeException("CPF nao existe na base.");
+            }
 
-                if (!condutor.emailCondutor().isEmpty()) {
-                    sendEmail(condutor.emailCondutor());
-                    envioemail = true;
+        }else {
+        return "CPF nao esta no formato correto. Nao validado. Favor verifique o CPF cadastrado.";}
+    }
+
+    public String validateCondutorEMAIL(String cpf, String assunto, String body) {
+        if (validateCPF(cpf)) {
+            var cpfExists = condutorRepository.findByCpf(cpf);
+            if (cpfExists.isPresent()) {
+
+                if (!cpfExists.get().getEmail().isEmpty()) {
+                    sendEmail(cpfExists.get().getEmail(), assunto, body);
+                    return "Email enviado com sucesso.";
                 } else {
-                    envioemail = false;
-                    return "Email nao encontrado para envio de comunicacao. Apenas SMS enviado.";
-                }
-                if (enviosms && envioemail) {
-                    return "Comunicacao de SMS e Email enviada.";
-                }
-                if (!enviosms && envioemail) {
-                    return "Somente comunicacao de Email enviada.";
-                }
-                if (enviosms && !envioemail) {
-                    return "Somente comunicacao de SMS enviada.";
+                    return "Email nao encontrado para envio de comunicacao.";
                 }
             } else {
                 throw new RuntimeException("CPF nao existe na base.");
             }
 
-        }
-        return "CPF nao esta no formato correto. Nao validado. Favor verifique o CPF cadastrado.";
+        }else{
+        return "CPF nao esta no formato correto. Nao validado. Favor verifique o CPF cadastrado.";}
     }
 
-    public void sendSMS(int ddi, int dd, int telefone, String nome) {
+    public void sendSMS(int ddi, int dd, int telefone, String text) {
 
         try {
             StringBuilder builder = new StringBuilder();
@@ -84,7 +81,7 @@ public class NotificationService {
                     .field("password", "25242598@Rc")
                     .field("to", telefonecompleto)
                     .field("from", "fiap")
-                    .field("text", "Bem vindo " + nome + ".")
+                    .field("text", text)
                     .field("type", "0")
                     .asString();
 
@@ -102,13 +99,13 @@ public class NotificationService {
         }
     }
 
-    public String sendEmail(String email) {
+    public String sendEmail(String email, String assunto, String body) {
         Email from = new Email("ticleyton@gmail.com");
-        String subject = "Comunicacao Condutor - FIAP - POS GRADUACAO";
+        String subject = assunto;
         Email to = new Email(email);
-        Content content = new Content("text/plain", "bem vindo! email de verificacao.");
+        Content content = new Content("text/plain", body);
         Mail mail = new Mail(from, subject, to, content);
-        SendGrid sg = new SendGrid("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");
+        SendGrid sg = new SendGrid("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");
 
         //SendGrid sg = new SendGrid(System.getenv("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\n"));
         Request request = new Request();
