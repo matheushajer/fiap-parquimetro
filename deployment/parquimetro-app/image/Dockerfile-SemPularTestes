@@ -6,7 +6,7 @@ RUN git clone -b teste-db https://github.com/matheushajer/fiap-parquimetro.git
 
 WORKDIR /tmp/fiap-parquimetro
 
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
 # Copia o jar para o diretorio /app
 RUN cp target/*.jar /app

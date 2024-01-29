@@ -12,7 +12,7 @@ spec:
     matchLabels:
       app: citus-worker
   serviceName: citus-worker
-  replicas: 1
+  replicas: 3
   podManagementPolicy: Parallel
   template:
     metadata:
