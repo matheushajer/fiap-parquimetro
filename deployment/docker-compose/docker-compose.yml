@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  citus:
+    image: citusdata/citus:11.0.2-alpine
+    ports:
+      - "5432:5432"
+      - "6432:6432"
+    environment:
+      POSTGRES_PASSWORD: f1aparqu1m3tr0
+
+  citus-worker:
+    image: citusdata/citus:11.0.2-alpine
+    depends_on:
+      - citus
+    environment:
+      POSTGRES_PASSWORD: f1aparqu1m3tr0
+
+  parquimetro-app:
+    image: yuriesena/fiap-parquimetro
+    ports:
+      - "8081:8081"
+    depends_on:
+      - citus
+    environment:
+      DB_HOST: citus
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: f1aparqu1m3tr0

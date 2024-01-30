@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - deployment-parquimetro.yaml
+  - parquimetro-app-hpa.yaml
   - route-parquimetro.yaml
   - service-parquimetro.yaml
 
