@@ -151,6 +151,16 @@ utilizando o HPA.
 Para o banco de dados o desafio foi encontrar uma que fosse escalável e o Citus e bastante utilizado
 no mercado devido a sua fácil escalabilidade e grande desempenho para grandes volumes de dados.
 
+
+### ⚠️ Dificuldades no deploy do Citus no OpenShift
+✅ Foi necessário adaptar o deploy de acordo com a plataforma disponibilizada pela RedHat,
+
+Neste caso criamos "InitContainers" que rodam antes dos containers principais entrarem em execuçao.
+Com isso, os utilizamos para garantir que após a reinicialização, o pod tenham todas as permissões necessárias. 
+
+Exemplo em: deployment/yamls-citus-db-openshift/citus-statefullsets.yaml initContainer fix-permissions-pgdata.
+
+
 ### ⚠️ Como viabilizar as notificações via SMS? 
 ✅ Para as notificações via SMS é utilizado o Unirest-JAVA como cliente HTTP para o envio de SMS devido a sua simplicidade
 no uso e abstração de requisições via API.
