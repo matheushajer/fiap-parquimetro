@@ -1,5 +1,5 @@
 
-# FIAP Parquimetro
+~~# FIAP Parquimetro
 
 Este projeto foi eleborado cumprindo os objetivos da FASE 02 Pós Arquitetura e Desenvolvimento Java da FIAP
 
@@ -161,5 +161,9 @@ no uso e abstração de requisições via API.
 ## ✒️ Autores
 
 
-* **Um desenvolvedor** - [umdesenvolvedor](https://github.com/linkParaPerfil)
+* **Cleyton Sales**
+* **Déborah Souza**
+* **Karoline Leite**
+* **Matheus Hajer**
+* **Yuri Sena**
 
